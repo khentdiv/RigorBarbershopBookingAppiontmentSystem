@@ -1,0 +1,1205 @@
+{% extends "auth_base.html" %}
+
+{% block title %}Create Account - Rigor Barbershop{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Navigation Bar Styles */
+    .navbar-custom {
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 1rem 2rem;
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(212, 165, 116, 0.2);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+    }
+
+    .navbar-custom.scrolled {
+        background: rgba(0, 0, 0, 0.98);
+        padding: 0.8rem 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .navbar-brand-custom {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #d4a574 0%, #e8c4a2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .navbar-brand-custom i {
+        background: none;
+        -webkit-text-fill-color: #d4a574;
+        font-size: 1.8rem;
+    }
+
+    .navbar-nav-custom {
+        display: flex;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .nav-item-custom {
+        list-style: none;
+    }
+
+    .nav-link-custom {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+    }
+
+    .nav-link-custom i {
+        font-size: 1rem;
+    }
+
+    .nav-link-custom:hover {
+        color: white;
+        background: rgba(212, 165, 116, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .nav-link-custom.active {
+        color: #d4a574;
+        background: rgba(212, 165, 116, 0.2);
+        border-bottom: 2px solid #d4a574;
+    }
+
+    /* Mobile Toggle Button */
+    .navbar-toggler-custom {
+        display: none;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .navbar-toggler-custom:hover {
+        color: #d4a574;
+    }
+
+    /* Register Wrapper - Inayos para hindi matabunan ng navbar */
+    .register-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 100px 20px 40px 20px;
+    }
+
+    .register-container {
+        max-width: 600px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(30px);
+        border-radius: 40px;
+        border: 1px solid var(--glass-border);
+        padding: 50px;
+        box-shadow: 
+            0 50px 100px -20px rgba(0, 0, 0, 0.5),
+            0 30px 60px -30px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .register-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .register-logo {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        margin: 0 auto 25px;
+        box-shadow: 0 15px 35px rgba(212, 165, 116, 0.3);
+        animation: logoPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes logoPulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 15px 35px rgba(212, 165, 116, 0.3); }
+        50% { transform: scale(1.05); box-shadow: 0 20px 45px rgba(212, 165, 116, 0.4); }
+    }
+
+    .register-header h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.2rem;
+        color: var(--text-primary);
+        margin-bottom: 10px;
+    }
+
+    .register-header p {
+        color: var(--text-secondary);
+        font-size: 1rem;
+    }
+
+    .progress-steps {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 40px;
+    }
+
+    .step {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .step-number {
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .step.active .step-number {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        box-shadow: 0 5px 15px rgba(212, 165, 116, 0.3);
+    }
+
+    .step.completed .step-number {
+        background: var(--success);
+        color: white;
+    }
+
+    .step-line {
+        width: 40px;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 1px;
+    }
+
+    .register-form {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .input-group {
+        position: relative;
+    }
+
+    .input-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .input-group label {
+        display: block;
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        transition: all 0.3s ease;
+    }
+
+    .input-wrapper {
+        position: relative;
+    }
+
+    .input-wrapper i.icon-left {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .input-wrapper input {
+        width: 100%;
+        padding: 16px 16px 16px 48px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .input-wrapper input:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 25px rgba(212, 165, 116, 0.1);
+    }
+
+    .input-wrapper input::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.4);
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .toggle-password:hover {
+        color: var(--primary);
+    }
+
+    .password-strength {
+        margin-top: 10px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .password-strength-bar {
+        height: 100%;
+        width: 0;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+
+    .strength-weak { background: #ef5350; width: 33%; }
+    .strength-medium { background: #ffc107; width: 66%; }
+    .strength-strong { background: #4caf50; width: 100%; }
+
+    .password-hint {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-top: 6px;
+    }
+
+    .terms-checkbox {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .terms-checkbox input {
+        width: 20px;
+        height: 20px;
+        accent-color: var(--primary);
+        margin-top: 2px;
+    }
+
+    .terms-checkbox label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    .terms-checkbox a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .register-btn {
+        width: 100%;
+        padding: 20px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border: none;
+        border-radius: 16px;
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        box-shadow: 0 10px 30px rgba(212, 165, 116, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .register-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(212, 165, 116, 0.4);
+    }
+
+    .register-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .login-link {
+        text-align: center;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        margin-top: 25px;
+        padding-top: 25px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .login-link a {
+        color: var(--primary);
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .login-link a:hover {
+        color: var(--accent);
+    }
+
+    /* Alert Container */
+    .alert-container {
+        margin-bottom: 20px;
+    }
+
+    .alert {
+        padding: 15px 20px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        animation: slideDown 0.3s ease;
+    }
+
+    .alert-danger {
+        background: rgba(220, 53, 69, 0.2);
+        border: 1px solid rgba(220, 53, 69, 0.5);
+        color: #ff6b6b;
+    }
+
+    .alert-success {
+        background: rgba(40, 167, 69, 0.2);
+        border: 1px solid rgba(40, 167, 69, 0.5);
+        color: #51cf66;
+    }
+
+    .alert-info {
+        background: rgba(33, 150, 243, 0.2);
+        border: 1px solid rgba(33, 150, 243, 0.5);
+        color: #64b5f6;
+    }
+
+    .close-alert {
+        margin-left: auto;
+        background: none;
+        border: none;
+        color: inherit;
+        cursor: pointer;
+        font-size: 1.2rem;
+        opacity: 0.7;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .loading-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid rgba(212, 165, 116, 0.3);
+        border-top-color: #d4a574;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+        .register-container {
+            padding: 35px 25px;
+            border-radius: 30px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .progress-steps {
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .step-line {
+            display: none;
+        }
+
+        .navbar-toggler-custom {
+            display: block;
+        }
+
+        .navbar-collapse-custom {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-top: 1px solid rgba(212, 165, 116, 0.2);
+        }
+
+        .navbar-collapse-custom.show {
+            display: block;
+        }
+
+        .navbar-nav-custom {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-link-custom {
+            padding: 12px 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Navigation Bar with Home, Queue, Login, Sign Up -->
+<nav class="navbar-custom" id="mainNavbar">
+    <div class="container-fluid" style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+        <a href="{{ url_for('index') }}" class="navbar-brand-custom" id="homeLink">
+            <i class="fas fa-cut"></i>
+            <span>Rigor Barbershop</span>
+        </a>
+        
+        <button class="navbar-toggler-custom" id="navbarToggler" aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <div class="navbar-collapse-custom" id="navbarCollapse">
+            <ul class="navbar-nav-custom">
+                <li class="nav-item-custom">
+                    <a href="{{ url_for('index') }}" class="nav-link-custom" data-nav="home">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                </li>
+                <li class="nav-item-custom">
+                    <a href="{{ url_for('queue_status') }}" class="nav-link-custom" data-nav="queue">
+                        <i class="fas fa-users"></i>
+                        <span>Queue</span>
+                    </a>
+                </li>
+                <li class="nav-item-custom">
+                    <a href="{{ url_for('login') }}" class="nav-link-custom" data-nav="login">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Login</span>
+                    </a>
+                </li>
+                <li class="nav-item-custom">
+                    <a href="{{ url_for('register') }}" class="nav-link-custom active" data-nav="register">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Sign Up</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="register-wrapper">
+    <div class="register-container">
+        <div class="register-header">
+            <div class="register-logo">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h2>Create Your Account</h2>
+            <p>Join our premium barbershop experience</p>
+        </div>
+
+        <div class="progress-steps">
+            <div class="step active">
+                <span class="step-number">1</span>
+                <span>Account</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <span class="step-number">2</span>
+                <span>Details</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <span class="step-number">3</span>
+                <span>Verify</span>
+            </div>
+        </div>
+
+        <!-- Alert Container -->
+        <div id="alertContainer" class="alert-container"></div>
+        
+        <form method="POST" action="{{ url_for('register') }}" class="register-form" id="registerForm">
+            <div class="form-row">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user icon-left"></i>
+                        <input type="text" id="username" name="username" required 
+                               placeholder="Choose a username" autocomplete="username">
+                    </div>
+                    <div class="field-error" style="display: none;"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="full_name">Full Name</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-id-card icon-left"></i>
+                        <input type="text" id="full_name" name="full_name" required 
+                               placeholder="Your full name" autocomplete="name">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-group full-width">
+                <label for="email">Email Address</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope icon-left"></i>
+                    <input type="email" id="email" name="email" required 
+                           placeholder="your@email.com" autocomplete="email">
+                </div>
+            </div>
+            
+            <div class="input-group full-width">
+                <label for="phone">Phone Number</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-phone icon-left"></i>
+                    <input type="tel" id="phone" name="phone" 
+                           placeholder="09123456789" autocomplete="tel">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock icon-left"></i>
+                        <input type="password" id="password" name="password" required 
+                               placeholder="Min 6 characters" autocomplete="new-password">
+                        <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength">
+                        <div class="password-strength-bar" id="strengthBar"></div>
+                    </div>
+                    <p class="password-hint">Use 8+ characters with mix of letters & numbers</p>
+                </div>
+                
+                <div class="input-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock icon-left"></i>
+                        <input type="password" id="confirm_password" name="confirm_password" required 
+                               placeholder="Confirm password" autocomplete="new-password">
+                        <button type="button" class="toggle-password" onclick="togglePassword('confirm_password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="terms-checkbox">
+                <input type="checkbox" id="terms" name="terms" required>
+                <label for="terms">I agree to the <a href="#" id="termsLink">Terms of Service</a> and <a href="#" id="privacyLink">Privacy Policy</a>. I confirm that I am at least 18 years old.</label>
+            </div>
+            
+            <button type="submit" class="register-btn" id="submitBtn">
+                <span>Create Account</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+        
+        <p class="login-link">
+            Already have an account? <a href="{{ url_for('login') }}" id="loginLink">Sign in</a>
+        </p>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Toggle password visibility
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const button = input.parentElement.querySelector('.toggle-password i');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        button.classList.remove('fa-eye');
+        button.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        button.classList.remove('fa-eye-slash');
+        button.classList.add('fa-eye');
+    }
+}
+
+// Navigation Manager with Home, Queue, Login, Sign Up
+class NavigationManager {
+    constructor() {
+        this.currentPath = window.location.pathname;
+        this.init();
+    }
+
+    init() {
+        this.setupNavigationLinks();
+        this.setupActiveState();
+        this.setupNavigationTransitions();
+        this.setupMobileMenu();
+        this.setupScrollEffect();
+        this.setupKeyboardShortcuts();
+    }
+
+    setupNavigationLinks() {
+        const navLinks = document.querySelectorAll('.nav-link-custom');
+        
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                const href = link.getAttribute('href');
+                
+                if (!href || href === '#') {
+                    e.preventDefault();
+                    return;
+                }
+                
+                this.showLoading();
+                this.updateActiveState(link);
+                
+                // Close mobile menu if open
+                const mobileMenu = document.getElementById('navbarCollapse');
+                if (mobileMenu && mobileMenu.classList.contains('show')) {
+                    mobileMenu.classList.remove('show');
+                    const togglerIcon = document.querySelector('#navbarToggler i');
+                    if (togglerIcon) {
+                        togglerIcon.classList.remove('fa-times');
+                        togglerIcon.classList.add('fa-bars');
+                    }
+                }
+            });
+        });
+    }
+
+    setupActiveState() {
+        const navLinks = document.querySelectorAll('.nav-link-custom');
+        const currentPath = this.currentPath;
+        
+        navLinks.forEach(link => {
+            const linkPath = link.getAttribute('href');
+            link.classList.remove('active');
+            
+            if (currentPath.includes('register') && linkPath?.includes('register')) {
+                link.classList.add('active');
+            } else if (currentPath.includes('login') && linkPath?.includes('login')) {
+                link.classList.add('active');
+            } else if (currentPath.includes('queue') && linkPath?.includes('queue')) {
+                link.classList.add('active');
+            } else if (currentPath === '/' && linkPath === '/') {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    updateActiveState(activeLink) {
+        const navLinks = document.querySelectorAll('.nav-link-custom');
+        navLinks.forEach(link => link.classList.remove('active'));
+        activeLink.classList.add('active');
+    }
+
+    setupNavigationTransitions() {
+        const navLinks = document.querySelectorAll('.nav-link-custom');
+        
+        navLinks.forEach(link => {
+            link.addEventListener('mouseenter', () => {
+                link.style.transform = 'translateY(-2px)';
+            });
+            
+            link.addEventListener('mouseleave', () => {
+                link.style.transform = 'translateY(0)';
+            });
+        });
+    }
+
+    setupMobileMenu() {
+        const toggler = document.getElementById('navbarToggler');
+        const mobileMenu = document.getElementById('navbarCollapse');
+        
+        if (toggler && mobileMenu) {
+            toggler.addEventListener('click', () => {
+                mobileMenu.classList.toggle('show');
+                const icon = toggler.querySelector('i');
+                if (mobileMenu.classList.contains('show')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            });
+        }
+    }
+
+    setupScrollEffect() {
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('mainNavbar');
+            if (navbar) {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            }
+        });
+    }
+
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            if (e.altKey && e.key === 'h') {
+                e.preventDefault();
+                window.location.href = '/';
+            }
+            if (e.altKey && e.key === 'l') {
+                e.preventDefault();
+                window.location.href = '/login';
+            }
+            if (e.altKey && e.key === 'r') {
+                e.preventDefault();
+                window.location.href = '/register';
+            }
+            if (e.altKey && e.key === 'q') {
+                e.preventDefault();
+                window.location.href = '/queue-status';
+            }
+        });
+    }
+
+    showLoading() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.classList.add('active');
+            setTimeout(() => {
+                overlay.classList.remove('active');
+            }, 1000);
+        }
+    }
+}
+
+// Register Form Handler
+class RegisterFormHandler {
+    constructor() {
+        this.form = document.getElementById('registerForm');
+        this.submitBtn = document.getElementById('submitBtn');
+        this.alertContainer = document.getElementById('alertContainer');
+        this.init();
+    }
+
+    init() {
+        if (this.form) {
+            this.setupFormValidation();
+            this.setupPasswordStrength();
+            this.setupFormSubmit();
+            this.setupInputAnimations();
+        }
+        this.setupTermsLinks();
+        this.setupLoginLink();
+    }
+
+    setupFormValidation() {
+        const usernameInput = document.getElementById('username');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmInput = document.getElementById('confirm_password');
+        const termsCheckbox = document.getElementById('terms');
+
+        if (usernameInput) {
+            usernameInput.addEventListener('blur', () => this.validateUsername(usernameInput));
+            usernameInput.addEventListener('input', () => this.clearFieldError(usernameInput));
+        }
+
+        if (emailInput) {
+            emailInput.addEventListener('blur', () => this.validateEmail(emailInput));
+            emailInput.addEventListener('input', () => this.clearFieldError(emailInput));
+        }
+
+        if (passwordInput) {
+            passwordInput.addEventListener('input', () => {
+                this.validatePassword(passwordInput);
+                this.checkPasswordsMatch(passwordInput, confirmInput);
+            });
+        }
+
+        if (confirmInput) {
+            confirmInput.addEventListener('input', () => this.checkPasswordsMatch(passwordInput, confirmInput));
+        }
+
+        if (termsCheckbox) {
+            termsCheckbox.addEventListener('change', () => this.validateTerms(termsCheckbox));
+        }
+    }
+
+    validateUsername(input) {
+        const username = input.value.trim();
+        if (username.length < 3) {
+            this.showFieldError(input, 'Username must be at least 3 characters');
+            return false;
+        }
+        if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            this.showFieldError(input, 'Username can only contain letters, numbers, and underscore');
+            return false;
+        }
+        return true;
+    }
+
+    validateEmail(input) {
+        const email = input.value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            this.showFieldError(input, 'Please enter a valid email address');
+            return false;
+        }
+        return true;
+    }
+
+    validatePassword(input) {
+        const password = input.value;
+        if (password.length < 6) {
+            this.showFieldError(input, 'Password must be at least 6 characters');
+            return false;
+        }
+        return true;
+    }
+
+    checkPasswordsMatch(passwordInput, confirmInput) {
+        if (!passwordInput || !confirmInput) return;
+        
+        const password = passwordInput.value;
+        const confirm = confirmInput.value;
+        
+        if (confirm && password !== confirm) {
+            this.showFieldError(confirmInput, 'Passwords do not match');
+            return false;
+        } else {
+            this.clearFieldError(confirmInput);
+            return true;
+        }
+    }
+
+    validateTerms(checkbox) {
+        if (!checkbox.checked) {
+            this.showAlert('Please agree to the Terms of Service and Privacy Policy', 'danger');
+            return false;
+        }
+        return true;
+    }
+
+    showFieldError(input, message) {
+        const formGroup = input.closest('.input-group');
+        const errorDiv = formGroup.querySelector('.field-error') || document.createElement('div');
+        errorDiv.className = 'field-error';
+        errorDiv.style.cssText = `
+            color: #ff6b6b;
+            font-size: 0.75rem;
+            margin-top: 5px;
+            padding-left: 16px;
+        `;
+        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+        
+        if (!formGroup.querySelector('.field-error')) {
+            formGroup.appendChild(errorDiv);
+        }
+        input.style.borderColor = '#ff6b6b';
+        
+        setTimeout(() => {
+            if (errorDiv.parentNode) {
+                errorDiv.remove();
+                input.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            }
+        }, 3000);
+    }
+
+    clearFieldError(input) {
+        const formGroup = input.closest('.input-group');
+        const error = formGroup.querySelector('.field-error');
+        if (error) {
+            error.remove();
+        }
+        input.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+    }
+
+    setupPasswordStrength() {
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.getElementById('strengthBar');
+        
+        if (passwordInput) {
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                let strength = 0;
+                
+                if (password.length >= 6) strength++;
+                if (password.length >= 8) strength++;
+                if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+                if (/[0-9]/.test(password)) strength++;
+                if (/[^a-zA-Z0-9]/.test(password)) strength++;
+                
+                strengthBar.className = 'password-strength-bar';
+                if (strength <= 2) {
+                    strengthBar.classList.add('strength-weak');
+                } else if (strength <= 4) {
+                    strengthBar.classList.add('strength-medium');
+                } else {
+                    strengthBar.classList.add('strength-strong');
+                }
+            });
+        }
+    }
+
+    setupFormSubmit() {
+        this.form.addEventListener('submit', (e) => {
+            const username = document.getElementById('username');
+            const email = document.getElementById('email');
+            const password = document.getElementById('password');
+            const confirm = document.getElementById('confirm_password');
+            const terms = document.getElementById('terms');
+            
+            const isUsernameValid = this.validateUsername(username);
+            const isEmailValid = this.validateEmail(email);
+            const isPasswordValid = this.validatePassword(password);
+            const isMatchValid = this.checkPasswordsMatch(password, confirm);
+            const isTermsValid = this.validateTerms(terms);
+            
+            if (!isUsernameValid || !isEmailValid || !isPasswordValid || !isMatchValid || !isTermsValid) {
+                e.preventDefault();
+                this.showAlert('Please fix all errors before submitting', 'danger');
+                return;
+            }
+            
+            this.setLoading(true);
+        });
+    }
+
+    setupInputAnimations() {
+        document.querySelectorAll('.input-wrapper input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.parentElement.querySelector('label').style.color = '#d4a574';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.parentElement.querySelector('label').style.color = 'var(--text-secondary)';
+            });
+        });
+    }
+
+    setupTermsLinks() {
+        const termsLink = document.getElementById('termsLink');
+        const privacyLink = document.getElementById('privacyLink');
+        
+        if (termsLink) {
+            termsLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.showAlert('Terms of Service would open in a modal', 'info');
+            });
+        }
+        
+        if (privacyLink) {
+            privacyLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.showAlert('Privacy Policy would open in a modal', 'info');
+            });
+        }
+    }
+
+    setupLoginLink() {
+        const loginLink = document.getElementById('loginLink');
+        if (loginLink) {
+            loginLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.setLoading(true);
+                setTimeout(() => {
+                    window.location.href = loginLink.getAttribute('href');
+                }, 300);
+            });
+        }
+    }
+
+    showAlert(message, type) {
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.innerHTML = `
+            <i class="fas ${type === 'danger' ? 'fa-exclamation-circle' : type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+            <span>${message}</span>
+            <button class="close-alert" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        this.alertContainer.innerHTML = '';
+        this.alertContainer.appendChild(alert);
+        
+        setTimeout(() => {
+            if (alert.parentElement) {
+                alert.remove();
+            }
+        }, 5000);
+    }
+
+    setLoading(loading) {
+        if (loading) {
+            this.submitBtn.disabled = true;
+            this.submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+        } else {
+            this.submitBtn.disabled = false;
+            this.submitBtn.innerHTML = '<span>Create Account</span> <i class="fas fa-arrow-right"></i>';
+        }
+    }
+}
+
+// Step Progress Animation
+class StepProgress {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        this.updateProgress();
+        this.setupInputListeners();
+    }
+
+    updateProgress() {
+        const username = document.getElementById('username')?.value;
+        const fullName = document.getElementById('full_name')?.value;
+        const email = document.getElementById('email')?.value;
+        const password = document.getElementById('password')?.value;
+        const steps = document.querySelectorAll('.step');
+        
+        // Step 1: Account info (username + full name)
+        if (username?.length > 0 && fullName?.length > 0) {
+            steps[0]?.classList.add('completed');
+            steps[0]?.classList.remove('active');
+            steps[1]?.classList.add('active');
+        }
+        
+        // Step 2: Contact info (email + password)
+        if (email?.length > 0 && password?.length >= 6) {
+            steps[1]?.classList.add('completed');
+            steps[1]?.classList.remove('active');
+            steps[2]?.classList.add('active');
+        }
+    }
+
+    setupInputListeners() {
+        const inputs = ['username', 'full_name', 'email', 'password'];
+        inputs.forEach(id => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.addEventListener('input', () => this.updateProgress());
+            }
+        });
+    }
+}
+
+// Initialize everything
+document.addEventListener('DOMContentLoaded', () => {
+    new NavigationManager();
+    new RegisterFormHandler();
+    new StepProgress();
+    
+    // Welcome animation
+    const container = document.querySelector('.register-container');
+    if (container) {
+        container.style.opacity = '0';
+        container.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            container.style.transition = 'all 0.5s ease';
+            container.style.opacity = '1';
+            container.style.transform = 'translateY(0)';
+        }, 100);
+    }
+});
+</script>
+{% endblock %}

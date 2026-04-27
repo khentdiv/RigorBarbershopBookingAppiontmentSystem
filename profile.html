@@ -1,0 +1,428 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - Rigor Barbershop{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>My Profile</h1>
+        <p>Manage your account settings and personal information</p>
+    </div>
+
+    <div class="profile-grid">
+        <!-- Profile Info Card -->
+        <div class="profile-card">
+            <div class="card-header">
+                <i class="fas fa-user-circle"></i>
+                <h3>Personal Information</h3>
+            </div>
+            <form method="POST" action="{{ url_for('profile') }}">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" value="{{ user.username }}" disabled class="form-control">
+                    <small>Username cannot be changed</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="full_name">Full Name</label>
+                    <input type="text" id="full_name" name="full_name" value="{{ user.full_name }}" required class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" value="{{ user.email }}" required class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="tel" id="phone" name="phone" value="{{ user.phone }}" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label>Role</label>
+                    <span class="role-badge role-{{ user.role }}">{{ user.role|title }}</span>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Change Password Card -->
+        <div class="profile-card">
+            <div class="card-header">
+                <i class="fas fa-lock"></i>
+                <h3>Change Password</h3>
+            </div>
+            <form method="POST" action="{{ url_for('change_password') }}">
+                <div class="form-group">
+                    <label for="current_password">Current Password</label>
+                    <div class="password-input">
+                        <input type="password" id="current_password" name="current_password" required class="form-control">
+                        <button type="button" class="toggle-password" onclick="togglePassword('current_password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_password">New Password</label>
+                    <div class="password-input">
+                        <input type="password" id="new_password" name="new_password" required class="form-control" minlength="6">
+                        <button type="button" class="toggle-password" onclick="togglePassword('new_password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-secondary">
+                        <i class="fas fa-key"></i> Update Password
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Barber Info Card (Only for barbers) -->
+        {% if role_data %}
+        <div class="profile-card">
+            <div class="card-header">
+                <i class="fas fa-user-tie"></i>
+                <h3>Barber Information</h3>
+            </div>
+            <div class="info-list">
+                <div class="info-item">
+                    <span class="label">Specialty</span>
+                    <span class="value">{{ role_data.specialty or 'Not specified' }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Experience</span>
+                    <span class="value">{{ role_data.experience_years or 0 }} years</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Rating</span>
+                    <span class="value">
+                        <i class="fas fa-star text-warning"></i> {{ role_data.rating or 'N/A' }}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Status</span>
+                    <span class="status-badge {% if role_data.is_active %}status-active{% else %}status-inactive{% endif %}">
+                        {% if role_data.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </div>
+            </div>
+            <p class="bio-text">{{ role_data.bio or 'No bio available' }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Quick Links Card -->
+        <div class="profile-card">
+            <div class="card-header">
+                <i class="fas fa-link"></i>
+                <h3>Quick Links</h3>
+            </div>
+            <div class="quick-links">
+                {% if session.role == 'customer' %}
+                <a href="{{ url_for('customer_dashboard') }}" class="quick-link">
+                    <i class="fas fa-calendar"></i>
+                    <span>My Bookings</span>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                <a href="{{ url_for('book_appointment') }}" class="quick-link">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Book Appointment</span>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% elif session.role == 'barber' %}
+                <a href="{{ url_for('barber_dashboard') }}" class="quick-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% elif session.role == 'admin' %}
+                <a href="{{ url_for('admin_dashboard') }}" class="quick-link">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Admin Panel</span>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% endif %}
+                <a href="{{ url_for('queue_status') }}" class="quick-link">
+                    <i class="fas fa-list-ol"></i>
+                    <span>Queue Status</span>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.page-header {
+    text-align: center;
+    margin-bottom: var(--space-10);
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-3);
+    color: var(--primary);
+}
+
+.page-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: var(--space-6);
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.profile-card {
+    background: var(--bg-white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.card-header {
+    padding: var(--space-6);
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.card-header i {
+    font-size: 1.5rem;
+    color: var(--primary);
+}
+
+.card-header h3 {
+    font-size: 1.25rem;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.profile-card form {
+    padding: var(--space-6);
+}
+
+.form-group {
+    margin-bottom: var(--space-5);
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: var(--space-2);
+    color: var(--text-primary);
+}
+
+.form-group small {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: var(--space-1);
+}
+
+.form-control {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+    background: var(--bg-white);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.form-control:disabled {
+    background: var(--bg-secondary);
+    cursor: not-allowed;
+}
+
+.password-input {
+    position: relative;
+}
+
+.password-input .form-control {
+    padding-right: 45px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: var(--space-1);
+}
+
+.toggle-password:hover {
+    color: var(--primary);
+}
+
+.form-actions {
+    margin-top: var(--space-6);
+}
+
+.role-badge {
+    display: inline-block;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.role-customer {
+    background: var(--info-light);
+    color: var(--info);
+}
+
+.role-barber {
+    background: var(--accent-light);
+    color: var(--primary);
+}
+
+.role-admin {
+    background: var(--success-light);
+    color: var(--success);
+}
+
+.info-list {
+    padding: var(--space-6);
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item .label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.info-item .value {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-active {
+    background: var(--success-light);
+    color: var(--success);
+}
+
+.status-inactive {
+    background: var(--danger-light);
+    color: var(--danger);
+}
+
+.bio-text {
+    padding: 0 var(--space-6) var(--space-6);
+    color: var(--text-secondary);
+    font-style: italic;
+    margin: 0;
+}
+
+.quick-links {
+    padding: var(--space-4);
+}
+
+.quick-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-fast);
+    color: var(--text-primary);
+}
+
+.quick-link:hover {
+    background: var(--bg-secondary);
+    color: var(--primary);
+}
+
+.quick-link i:first-child {
+    width: 24px;
+    color: var(--accent);
+}
+
+.quick-link span {
+    flex: 1;
+    font-weight: 500;
+}
+
+.quick-link i:last-child {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.text-warning {
+    color: var(--warning);
+}
+
+@media (max-width: 768px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+    }
+}
+</style>
+
+<script>
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const button = input.nextElementSibling;
+    const icon = button.querySelector('i');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+</script>
+{% endblock %}

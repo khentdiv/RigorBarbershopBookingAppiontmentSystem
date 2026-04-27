@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Rigor Barbershop{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% if session.role == 'admin' %}admin-layout{% endif %}">
+    <!-- Navigation -->
+    <nav class="navbar {% if session.user_id %}navbar-authenticated{% endif %}">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="nav-logo">
+                <div class="logo-icon">
+                    <i class="fas fa-cut"></i>
+                </div>
+                <span class="logo-text">Rigor<span class="accent">Barber</span></span>
+            </a>
+            
+            <ul class="nav-menu">
+                <!-- Public Links -->
+                {% if not session.user_id %}
+                    <li><a href="{{ url_for('index') }}" class="nav-link">Home</a></li>
+                    <li><a href="{{ url_for('login') }}" class="btn btn-outline">Login</a></li>
+                    <li><a href="{{ url_for('register') }}" class="btn btn-primary">Sign Up</a></li>
+                {% endif %}
+                
+                <!-- Customer Links -->
+                {% if session.role == 'customer' %}
+                    <li><a href="{{ url_for('customer_dashboard') }}" class="nav-link">Dashboard</a></li>
+                    <li><a href="{{ url_for('book_appointment') }}" class="nav-link">Book</a></li>
+                    <li><a href="{{ url_for('walkin_booking') }}" class="nav-link">Walk-in</a></li>
+                    <li><a href="{{ url_for('payment_history') }}" class="nav-link">Payments</a></li>
+                    <li><a href="{{ url_for('queue_status') }}" class="nav-link">Queue</a></li>
+                {% endif %}
+                
+                <!-- Barber Links -->
+                {% if session.role == 'barber' %}
+                    <li><a href="{{ url_for('barber_dashboard') }}" class="nav-link">Dashboard</a></li>
+                    <li><a href="{{ url_for('admin_queue') }}" class="nav-link">Queue</a></li>
+                {% endif %}
+                
+                <!-- Admin Links (only in top nav for quick access) -->
+                {% if session.role == 'admin' %}
+                    <li><a href="{{ url_for('admin_dashboard') }}" class="nav-link">Dashboard</a></li>
+                {% endif %}
+            </ul>
+            
+            <!-- User Menu -->
+            {% if session.user_id %}
+            <div class="user-menu">
+                <button class="notification-btn" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge">0</span>
+                </button>
+                
+                <div class="user-dropdown">
+                    <button class="user-btn" onclick="toggleUserMenu()">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span class="user-name">{{ session.full_name }}</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    
+                    <div class="user-dropdown-menu" id="userDropdown">
+                        <div class="dropdown-header">
+                            <span class="user-role">{{ session.role|title }}</span>
+                        </div>
+                        <a href="{{ url_for('profile') }}" class="dropdown-item">
+                            <i class="fas fa-user-circle"></i> Profile
+                        </a>
+                        {% if session.role == 'customer' %}
+                        <a href="{{ url_for('customer_dashboard') }}" class="dropdown-item">
+                            <i class="fas fa-calendar"></i> My Bookings
+                        </a>
+                        <a href="{{ url_for('walkin_booking') }}" class="dropdown-item">
+                            <i class="fas fa-walking"></i> Walk-in
+                        </a>
+                        <a href="{{ url_for('payment_history') }}" class="dropdown-item">
+                            <i class="fas fa-credit-card"></i> Payments
+                        </a>
+                        {% endif %}
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ url_for('logout') }}" class="dropdown-item logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Mobile Toggle -->
+            <button class="mobile-toggle" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Admin Sidebar -->
+    {% if session.role == 'admin' %}
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-shield-alt"></i>
+            <span>Admin Panel</span>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('admin_bookings') }}" class="sidebar-link {% if request.endpoint == 'admin_bookings' %}active{% endif %}">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Bookings</span>
+            </a>
+            <a href="{{ url_for('admin_queue') }}" class="sidebar-link {% if request.endpoint == 'admin_queue' %}active{% endif %}">
+                <i class="fas fa-list-ol"></i>
+                <span>Queue</span>
+            </a>
+            <a href="{{ url_for('manage_barbers') }}" class="sidebar-link {% if request.endpoint == 'manage_barbers' %}active{% endif %}">
+                <i class="fas fa-user-tie"></i>
+                <span>Barbers</span>
+            </a>
+            <a href="{{ url_for('manage_services') }}" class="sidebar-link {% if request.endpoint == 'manage_services' %}active{% endif %}">
+                <i class="fas fa-cut"></i>
+                <span>Services</span>
+            </a>
+            <a href="{{ url_for('send_reminders') }}" class="sidebar-link {% if request.endpoint == 'send_reminders' %}active{% endif %}">
+                <i class="fas fa-bell"></i>
+                <span>Reminders</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <span>v2.0 - Rigor Barber</span>
+        </div>
+    </aside>
+    {% endif %}
+    
+    <!-- Notification Panel -->
+    <div class="notification-panel" id="notificationPanel">
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <button onclick="markAllRead()">Mark all read</button>
+        </div>
+        <div class="notification-list" id="notificationList">
+            <p class="no-notifications">No new notifications</p>
+        </div>
+    </div>
+    
+    <!-- Flash Messages -->
+    <div class="flash-wrapper">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <div class="alert-content">
+                                <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                                <span>{{ message }}</span>
+                            </div>
+                            <button class="close-btn" onclick="this.parentElement.remove()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>
+    
+    <!-- Main Content -->
+    <main class="main-content {% if session.role == 'admin' %}with-sidebar{% endif %}">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer {% if session.role == 'admin' %}with-sidebar{% endif %}">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <i class="fas fa-cut"></i>
+                    <span>Rigor<span class="accent">Barber</span></span>
+                </div>
+                <p>Professional grooming with AI-powered queue management since 2024.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="{{ url_for('index') }}">Home</a></li>
+                    <li><a href="{{ url_for('book_appointment') }}">Book Now</a></li>
+                    <li><a href="{{ url_for('walkin_booking') }}">Walk-in</a></li>
+                    <li><a href="{{ url_for('queue_status') }}">Queue Status</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Account</h4>
+                <ul>
+                    {% if session.user_id %}
+                        <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                        <li><a href="{{ url_for('payment_history') }}">Payments</a></li>
+                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('login') }}">Login</a></li>
+                        <li><a href="{{ url_for('register') }}">Register</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <ul class="contact-info">
+                    <li><i class="fas fa-phone"></i> (02) 8123-4567</li>
+                    <li><i class="fas fa-envelope"></i> info@rigorbarbershop.com</li>
+                    <li><i class="fas fa-map-marker-alt"></i> 123 Main Street, Manila</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2024 Rigor Barbershop. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            document.querySelector('.nav-menu').classList.toggle('active');
+        }
+        
+        // User dropdown toggle
+        function toggleUserMenu() {
+            document.getElementById('userDropdown').classList.toggle('active');
+        }
+        
+        // Notification panel toggle
+        function toggleNotifications() {
+            document.getElementById('notificationPanel').classList.toggle('active');
+        }
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-dropdown')) {
+                document.getElementById('userDropdown')?.classList.remove('active');
+            }
+            if (!e.target.closest('.user-menu')) {
+                document.getElementById('notificationPanel')?.classList.remove('active');
+            }
+        });
+        
+        // Auto-hide flash messages after 5 seconds
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(alert => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 5000);
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
