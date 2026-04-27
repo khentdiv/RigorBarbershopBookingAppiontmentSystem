@@ -1,0 +1,21 @@
+# Rigor Barbershop Online Booking and AI-Powered Queue Management System
+# Python dependencies
+
+# Flask web framework
+Flask==3.0.3
+
+# MySQL database connector
+mysql-connector-python==8.3.0
+
+# Password hashing for secure authentication
+Werkzeug==3.0.1
+
+# QR Code generation
+qrcode==7.4.2
+Pillow>=11.0.0
+
+# Text-to-speech for voice announcements
+pyttsx3==2.90
+
+# Date and time utilities
+python-dateutil==2.8.2
